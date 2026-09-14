@@ -58,3 +58,7 @@ Se inicializó el repositorio Git local y se comprobó que `.env`, bases locales
 ## Repositorio Git terminado
 
 El 14 de septiembre de 2026 se creó una carpeta de metadatos Git separada (`.git-codex`) porque la `.git` original permanece de solo lectura. La rama es `main`, el primer commit es `ff07758` y contiene 99 archivos del sistema. Un escaneo posterior confirmó que no se versionaron secretos, `.env`, bases locales, fotos cargadas, entornos virtuales ni configuración del editor. Falta conectar GitHub para crear el repositorio privado y hacer el primer `push`.
+
+## Bloqueo de navegadores externos
+
+Se intentó abrir GitHub con Chrome, Edge y Firefox. Ninguno de esos navegadores está habilitado para esta tarea. El navegador interno es el único disponible y mantiene una preferencia guardada que bloquea `github.com` y `railway.app`. La integración de GitHub fue ofrecida, pero todavía figura sin instalar/conectar. El repositorio local está terminado; no se creó aún ningún recurso externo.

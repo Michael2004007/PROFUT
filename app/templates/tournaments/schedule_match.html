@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Programar partido · {{ tournament.name }}{% endblock %}
+{% block content %}
+{% set hide_process_nav = true %}{% include 'tournaments/_detail_header.html' %}
+<div class="page-heading subpage-heading"><div><a class="back-link" href="{{ url_for('tournaments.matches', tournament_id=tournament.id) }}">← Volver a partidos</a><p class="eyebrow">PROGRAMAR EN AGENDA</p><h2>{{ match.home_team.name }} vs. {{ match.away_team.name }}</h2><p>El horario elegido quedará bloqueado en la agenda del complejo.</p></div></div>
+<form class="panel focus-form" method="post" action="{{ url_for('tournaments.schedule_match', match_id=match.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Fecha<input type="date" name="date" min="{{ today.isoformat() }}" value="{{ selected_day.isoformat() }}" data-schedule-date required></label>
+  <label>Horario<select name="start_time" required {% if not slots %}disabled{% endif %}>{% for start, end in slots %}<option value="{{ start.strftime('%H:%M') }}">{{ start.strftime('%H:%M') }} – {{ end.strftime('%H:%M') }}</option>{% else %}<option value="">No quedan horarios disponibles para este día</option>{% endfor %}</select><small>Al cambiar la fecha se muestran solamente horarios vigentes y libres.</small></label>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('tournaments.matches', tournament_id=tournament.id) }}">Cancelar</a><button class="btn primary" {% if not slots %}disabled{% endif %}>Reservar horario</button></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/tournaments.js') }}" data-page-script></script>{% endblock %}

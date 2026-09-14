@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block title %}Acceso denegado{% endblock %}{% block content %}<div class="empty-state full"><strong>403</strong><h1>Acceso denegado</h1><p>Tu rol no tiene permiso para realizar esta acción.</p><a class="btn primary" href="{{ url_for('dashboard.index') }}">Volver al Dashboard</a></div>{% endblock %}
+

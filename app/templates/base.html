@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es" data-theme="{{ current_user.theme if current_user.is_authenticated and current_user.theme else (system_config.theme if system_config else 'dark') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}PROFUT{% endblock %} · Gestión Deportiva</title>
+  <script>try{const savedTheme=localStorage.getItem('profut-theme');if(savedTheme)document.documentElement.dataset.theme=savedTheme}catch(_error){}</script>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profut.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="{{ url_for('dashboard.index') }}" aria-label="PROFUT inicio">
+        <span class="brand-mark">P</span>
+        <span><b>PROFUT</b><small>Gestión Deportiva</small></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a class="{{ 'active' if request.blueprint == 'dashboard' }}" href="{{ url_for('dashboard.index') }}"><span>⌂</span> Inicio</a>
+        <a class="{{ 'active' if request.blueprint == 'agenda' }}" href="{{ url_for('agenda.months') }}"><span>▦</span> Agenda / Partidos</a>
+        <a class="{{ 'active' if request.blueprint == 'tournaments' }}" href="{{ url_for('tournaments.index') }}"><span>♕</span> Torneos</a>
+        <a class="{{ 'active' if request.blueprint == 'teams' }}" href="{{ url_for('teams.index') }}"><span>♙</span> Equipos</a>
+        {% if current_user.is_authenticated and current_user.can('pos.view') %}<a class="{{ 'active' if request.blueprint == 'pos' }}" href="{{ url_for('pos.index') }}"><span>▣</span> Punto de Venta</a>{% endif %}
+        {% if current_user.is_authenticated and current_user.can('products.view') %}<a class="{{ 'active' if request.blueprint == 'products' }}" href="{{ url_for('products.index') }}"><span>▤</span> Productos</a>{% endif %}
+        {% if current_user.is_authenticated and current_user.role == 'ADMIN' %}<a class="{{ 'active' if request.blueprint == 'users' }}" href="{{ url_for('users.index') }}"><span>♧</span> Usuarios</a>{% endif %}
+        <a class="{{ 'active' if request.blueprint == 'reports' }}" href="{{ url_for('reports.index') }}"><span>▥</span> Reportes</a>
+        {% if current_user.is_authenticated and current_user.role == 'ADMIN' %}<a class="{{ 'active' if request.blueprint == 'settings' }}" href="{{ url_for('settings.index') }}"><span>⚙</span> Configuración</a>{% endif %}
+      </nav>
+      <div class="court-status">
+        <span class="court-icon">⌗</span>
+        <div><strong>{{ system_config.court_name }}</strong><small>{{ system_config.facility_name }}</small></div>
+        <p><i></i> En línea</p>
+      </div>
+    </aside>
+
+    <div class="page-shell">
+      <header class="topbar">
+        <button class="icon-button menu-button" data-toggle-sidebar aria-label="Abrir menú">☰</button>
+        <div class="mobile-brand"><span class="brand-mark">P</span><b>PROFUT</b></div>
+        <div class="topbar-spacer"></div>
+        <time class="live-clock" data-live-clock aria-label="Hora actual"></time><span class="online-pill"><i></i> En línea</span>
+        <details class="notification-menu"><summary class="icon-button" aria-label="Notificaciones">♢{% if unread_notifications %}<i>{{ unread_notifications }}</i>{% endif %}</summary><div><header><b>Notificaciones</b><a href="{{ url_for('dashboard.notifications') }}">Ver todas</a></header>{% for notice in recent_notifications %}<form method="post" action="{{ url_for('dashboard.read_notification', notification_id=notice.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="{{ 'unread' if not notice.is_read }}"><span>{{ notice.title }}</span><small>{{ notice.message }}</small></button></form>{% else %}<p>Sin novedades.</p>{% endfor %}</div></details>
+        <button class="icon-button" data-theme-toggle data-theme-url="{{ url_for('settings.update_theme') }}" aria-label="Cambiar tema">◐</button>
+        {% if current_user.is_authenticated %}<div class="user-menu">
+          <span class="avatar">{{ current_user.name[:1] }}</span>
+          <div><strong>{{ current_user.name }}</strong><small>{{ current_user.role|title }}</small></div>
+          <form action="{{ url_for('auth.logout') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="icon-button" title="Cerrar sesión">↪</button>
+          </form>
+        </div>{% else %}<a class="btn secondary" href="{{ url_for('auth.login') }}">Iniciar sesión</a>{% endif %}
+      </header>
+
+      <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}<div class="flash-stack" role="status">
+            {% for category, message in messages %}<div class="flash {{ category }}"><i>{{ '✓' if category == 'success' else ('!' if category in ['danger','warning'] else 'i') }}</i><span><b>{{ 'Listo' if category == 'success' else ('No se pudo completar' if category == 'danger' else ('Atención' if category == 'warning' else 'Información')) }}</b><small>{{ message }}</small></span><button type="button" data-dismiss aria-label="Cerrar">×</button></div>{% endfor %}
+          </div>{% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navegación móvil">
+    <a class="{{ 'active' if request.blueprint == 'dashboard' }}" href="{{ url_for('dashboard.index') }}"><span>⌂</span>Inicio</a>
+    <a class="{{ 'active' if request.blueprint == 'agenda' }}" href="{{ url_for('agenda.months') }}"><span>▦</span>Agenda</a>
+    {% if current_user.is_authenticated and current_user.can('pos.view') %}<a class="{{ 'active' if request.blueprint == 'pos' }}" href="{{ url_for('pos.index') }}"><span>▣</span>POS</a>{% else %}<a class="{{ 'active' if request.blueprint == 'tournaments' }}" href="{{ url_for('tournaments.index') }}"><span>♕</span>Torneos</a>{% endif %}
+    <button data-toggle-sidebar><span>☰</span>Más</button>
+  </nav>
+  <dialog id="profut-confirm-dialog" class="modal confirm-dialog"><form method="dialog"><div class="confirm-symbol">?</div><h2 data-confirm-title>Confirmar acción</h2><p data-confirm-message></p><div class="form-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn primary" value="confirm">Confirmar</button></div></form></dialog>
+  <div class="sidebar-backdrop" data-toggle-sidebar></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

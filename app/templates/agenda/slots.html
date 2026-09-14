@@ -1,0 +1,28 @@
+{% extends 'base.html' %}{% block title %}{{ day|shortdate }} · Agenda{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">AGENDA / PARTIDOS</p><h1>{{ day.strftime('%d') }} de {{ month_name }} {{ day.year }}</h1><p>{{ system_config.court_name }} · Intervalos de {{ system_config.slot_minutes }} minutos</p></div><a class="btn ghost" href="{{ url_for('agenda.days', year=day.year, month=day.month) }}">← Volver a días</a></div>
+<div class="progress-steps"><span>1 Mes</span><span>2 Día</span><span class="active">3 Horario</span></div>
+<div class="legend"><span class="available">Disponible</span><span class="full">Reservado</span><span class="maintenance">Mantenimiento</span></div>
+<section class="slot-grid">
+  {% for slot in slots %}
+    {% set r = slot.reservation %}
+    <article class="slot-card {{ 'maintenance' if r and r.reservation_type == 'MANTENIMIENTO' else ('reserved' if r else ('past' if slot.is_past else 'available')) }}">
+      <time>{{ slot.start.strftime('%H:%M') }}</time>
+      {% if r %}
+        <strong>{{ 'Mantenimiento' if r.reservation_type == 'MANTENIMIENTO' else r.customer_name }}</strong>
+        <small>{{ r.reservation_type|title }}</small>
+        {% if r.account %}<span class="status {{ 'success' if r.account.status == 'PAGADA' else ('warning' if r.account.status == 'PARCIALMENTE_PAGADA' else 'neutral') }}">{{ 'PAGADO' if r.account.status == 'PAGADA' else ('PAGO PARCIAL' if r.account.status == 'PARCIALMENTE_PAGADA' else 'PENDIENTE') }}</span>{% endif %}
+        <div class="slot-actions">
+          {% if r.account %}<a href="{{ url_for('pos.index', account=r.account.id, mode='account') }}">{{ 'Ver cuenta' if r.account.status == 'PAGADA' else 'Cobrar cuenta' }}</a>{% endif %}
+          {% if current_user.can('agenda.manage') %}<form method="post" action="{{ url_for('agenda.cancel', reservation_id=r.id) }}" data-confirm="¿Confirmás la cancelación de la reserva de {{ r.customer_name }} a las {{ r.start_time.strftime('%H:%M') }}?" data-confirm-title="Cancelar reserva"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Cancelar</button></form>{% endif %}
+        </div>
+      {% else %}
+        <strong>{{ 'Horario vencido' if slot.is_past else 'Disponible' }}</strong>
+        {% if not slot.is_past and current_user.can('agenda.manage') %}<button class="slot-book" data-book-slot="{{ slot.start.strftime('%H:%M') }}">Reservar</button>{% endif %}
+      {% endif %}
+    </article>
+  {% else %}
+    <div class="empty-state"><h2>No hay horarios configurados</h2><p>Revisá los días habilitados y horarios de operación.</p></div>
+  {% endfor %}
+</section>
+<dialog id="reservation-dialog" class="modal"><form method="post" action="{{ url_for('agenda.reserve') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="date" value="{{ day.isoformat() }}"><input type="hidden" name="start_time" id="reservation-start"><button class="modal-close" type="button" data-dialog-close>×</button><p class="eyebrow">NUEVA RESERVA</p><h2>Reservar <span id="reservation-time"></span></h2><p class="modal-price">Se abrirá una cuenta por <b>{{ system_config.reservation_price|pyg }}</b></p><label>Nombre y apellido<input name="customer_name" required maxlength="160" autofocus></label><label>Celular<input name="phone" maxlength="40" placeholder="+595 ..."></label><label>Notas<textarea name="notes" rows="2"></textarea></label><button class="btn primary wide">Confirmar reserva</button>{% if current_user.role == 'ADMIN' %}<button class="btn ghost wide" type="submit" formaction="{{ url_for('agenda.block') }}">Bloquear por mantenimiento</button>{% endif %}</form></dialog>
+{% endblock %}{% block scripts %}<script src="{{ url_for('static', filename='js/agenda.js') }}"></script>{% endblock %}

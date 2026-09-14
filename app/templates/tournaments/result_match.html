@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Resultado · {{ match.home_team.name }} vs. {{ match.away_team.name }}{% endblock %}
+{% block content %}
+{% set hide_process_nav = true %}{% include 'tournaments/_detail_header.html' %}
+<div class="page-heading subpage-heading"><div><a class="back-link" href="{{ url_for('tournaments.matches', tournament_id=tournament.id) }}">← Volver a partidos</a><p class="eyebrow">{{ match.group.name if match.group else match.round_name }}</p><h2>Cargar resultado</h2><p>Al guardar se recalculará la tabla y, cuando corresponda, avanzará el ganador.</p></div></div>
+<form class="panel result-focus-form" method="post" action="{{ url_for('tournaments.result', match_id=match.id) }}" data-confirm="¿Confirmás este resultado? La tabla y la llave se actualizarán automáticamente." data-confirm-title="Guardar resultado">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="scoreboard-editor"><label><span>{{ match.home_team.name }}</span><input type="number" name="home_score" min="0" value="{{ match.home_score if match.home_score is not none else 0 }}" required aria-label="Goles de {{ match.home_team.name }}"></label><i>–</i><label><span>{{ match.away_team.name }}</span><input type="number" name="away_score" min="0" value="{{ match.away_score if match.away_score is not none else 0 }}" required aria-label="Goles de {{ match.away_team.name }}"></label></div>
+  {% if match.stage == 'KNOCKOUT' %}<label class="tie-winner">Ganador si el marcador termina empatado<select name="tie_winner_id"><option value="">Elegir solo si hubo empate</option><option value="{{ match.home_team_id }}">{{ match.home_team.name }}</option><option value="{{ match.away_team_id }}">{{ match.away_team.name }}</option></select><small>En una llave eliminatoria no puede quedar un empate; indicá el ganador por penales.</small></label>{% endif %}
+  <div class="notice-card info"><b>Actualización automática</b><p>Victoria: 3 puntos · Empate: 1 punto · Derrota: 0 puntos. En eliminatorias, el ganador avanza al siguiente cruce.</p></div>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('tournaments.matches', tournament_id=tournament.id) }}">Cancelar</a><button class="btn primary">Guardar resultado</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Abrir caja{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{{ url_for('pos.cash_dashboard') }}">← Volver al control de caja</a><p class="eyebrow">INICIO DE JORNADA</p><h1>Abrir caja</h1><p>Registrá el fondo inicial antes de comenzar a cobrar.</p></div></div>
+<form class="panel focus-form cash-operation-form" method="post" action="{{ url_for('pos.open_register') }}" data-confirm="¿Confirmás la apertura de caja con este fondo inicial?" data-confirm-title="Abrir caja">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="cash-operation-icon">▣</div><h2>Nueva jornada de caja</h2><p>Todos los pagos, ventas y movimientos quedarán vinculados a esta apertura y a {{ current_user.name }}.</p>
+  <label>Fondo inicial en guaraníes<input name="opening_cash" type="number" min="0" step="1" value="0" required autofocus></label>
+  <div class="notice-card info"><b>Control de efectivo</b><p>El fondo inicial se sumará a los cobros en efectivo para calcular el monto esperado al cierre.</p></div>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('pos.cash_dashboard') }}">Cancelar</a><button class="btn primary">Abrir caja</button></div>
+</form>
+{% endblock %}

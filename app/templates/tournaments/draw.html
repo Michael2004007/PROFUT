@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Sorteo · {{ tournament.name }}{% endblock %}
+{% block content %}
+{% include 'tournaments/_detail_header.html' %}
+<div class="page-heading subpage-heading"><div><a class="back-link" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}">← Volver a inscripciones</a><p class="eyebrow">SORTEO AUTOMÁTICO</p><h2>Generar la competencia</h2><p>PROFUT distribuirá los equipos y creará todos los partidos según las reglas.</p></div></div>
+<section class="draw-workspace">
+  <article class="panel"><div class="panel-title"><h2>Equipos participantes</h2><span>{{ tournament.entries|length }}</span></div><div class="draw-team-grid">{% for entry in tournament.entries %}<div><span>{{ loop.index }}</span><b>{{ entry.team.name }}</b><small>{{ entry.payment_status }}</small></div>{% else %}<p class="empty">No hay equipos.</p>{% endfor %}</div></article>
+  <aside class="panel draw-rules"><p class="eyebrow">ESTRUCTURA</p><h2>{{ format_labels.get(tournament.format) }}</h2><dl class="detail-list"><div><dt>Equipos</dt><dd>{{ tournament.entries|length }}</dd></div><div><dt>Grupos</dt><dd>{{ 1 if tournament.format == 'ROUND_ROBIN' else tournament.group_count }}</dd></div><div><dt>Clasifican</dt><dd>{{ tournament.qualifiers_per_group if tournament.format == 'GROUPS_KNOCKOUT' else 'No aplica' }}</dd></div><div><dt>Puntuación</dt><dd>3 victoria · 1 empate</dd></div></dl>
+  {% if tournament.draw_completed %}<div class="notice-card success"><b>Sorteo ya realizado</b><p>La estructura no volverá a modificarse.</p></div><a class="btn primary wide" href="{{ url_for('tournaments.groups', tournament_id=tournament.id) }}">Ver estructura</a>{% else %}<div class="notice-card warning"><b>Acción estructural</b><p>Después del sorteo no se podrán agregar equipos sin reiniciar la competencia.</p></div><form method="post" action="{{ url_for('tournaments.draw', tournament_id=tournament.id) }}" data-confirm="¿Confirmás el sorteo de {{ tournament.name }} con {{ tournament.entries|length }} equipos? Esta acción generará toda la estructura." data-confirm-title="Sortear torneo"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn success wide" {{ 'disabled' if tournament.entries|length < 2 }}>Sortear y generar partidos</button></form>{% endif %}</aside>
+</section>
+{% endblock %}

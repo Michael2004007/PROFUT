@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo torneo{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{{ url_for('tournaments.index') }}">← Volver a torneos</a><p class="eyebrow">NUEVA COMPETICIÓN</p><h1>Crear torneo</h1><p>Definí la estructura antes de comenzar a inscribir.</p></div></div>
+<form class="panel focus-form" method="post" action="{{ url_for('tournaments.create') }}" data-async>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-section"><span class="form-step">1</span><div><h2>Información principal</h2><p>Identificá el torneo y sus fechas.</p></div></div>
+  <label>Nombre del torneo<input name="name" required placeholder="Ej.: Copa Apertura 2026"></label>
+  <div class="form-grid"><label>Fecha de inicio<input name="start_date" type="date" value="{{ today.isoformat() }}" required></label><label>Fecha de finalización<input name="end_date" type="date"></label></div>
+  <label>Categoría<input name="category" value="Fútbol 7 - Libre"></label>
+  <div class="form-section"><span class="form-step">2</span><div><h2>Formato y clasificación</h2><p>PROFUT usará estas reglas para generar todos los cruces.</p></div></div>
+  <div class="format-choice-grid">
+    <label><input type="radio" name="format" value="ROUND_ROBIN" checked data-tournament-format><span><b>Todos contra todos</b><small>Un solo grupo; campeón por tabla.</small></span></label>
+    <label><input type="radio" name="format" value="GROUPS_KNOCKOUT" data-tournament-format><span><b>Grupos + eliminación</b><small>Fase de grupos y luego llaves.</small></span></label>
+    <label><input type="radio" name="format" value="KNOCKOUT" data-tournament-format><span><b>Eliminación directa</b><small>Llaves desde la primera ronda.</small></span></label>
+  </div>
+  <div class="form-grid" data-group-options hidden><label>Cantidad de grupos<select name="group_count">{% for count in [2,3,4] %}<option>{{ count }}</option>{% endfor %}</select></label><label>Clasifican por grupo<select name="qualifiers_per_group">{% for count in [1,2,3,4] %}<option {{ 'selected' if count == 2 }}>{{ count }}</option>{% endfor %}</select></label></div>
+  <div class="form-section"><span class="form-step">3</span><div><h2>Inscripción</h2><p>El monto quedará asociado a cada equipo y podrá cobrarse al inscribir.</p></div></div>
+  <label>Monto por equipo (G.)<input name="registration_fee" type="number" min="0" value="0" required></label>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('tournaments.index') }}">Cancelar</a><button class="btn primary">Crear y continuar</button></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/tournaments.js') }}"></script>{% endblock %}

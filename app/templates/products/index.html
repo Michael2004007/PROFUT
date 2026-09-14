@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">INVENTARIO</p><h1>Productos</h1><p>Fotos, códigos de barras, precios y stock</p></div>
+  {% if current_user.can('products.manage') %}<button class="btn primary" data-dialog-open="product-create">+ Nuevo producto</button>{% endif %}
+</div>
+<section class="metric-grid compact">
+  <div class="metric blue"><span>PRODUCTOS TOTALES</span><strong>{{ products|length }}</strong><small>En este filtro</small></div>
+  <div class="metric green"><span>UNIDADES EN STOCK</span><strong>{{ products|sum(attribute='stock') }}</strong><small>Inventario disponible</small></div>
+  <div class="metric orange"><span>STOCK BAJO</span><strong>{{ products|selectattr('stock_low')|list|length }}</strong><small>Requieren reposición</small></div>
+</section>
+<form class="toolbar" method="get" data-async>
+  <label class="search-field"><span>⌕</span><input name="q" value="{{ search }}" placeholder="Buscar nombre o código..."></label>
+  <select name="state"><option value="all">Todos los estados</option><option value="active" {{ 'selected' if state == 'active' }}>Activos</option><option value="inactive" {{ 'selected' if state == 'inactive' }}>Inactivos</option></select>
+  <button class="btn secondary">Filtrar</button>
+</form>
+<section class="product-admin-grid">
+  {% for product in products %}
+  <article class="product-admin-card">
+    <img class="product-photo" src="{{ url_for('static', filename=product.image_path or 'img/product-placeholder.svg') }}" alt="Foto de {{ product.name }}">
+    <div class="product-info"><div><h2>{{ product.name }}</h2><small>{{ product.category }}</small></div><strong>{{ product.price|pyg }}</strong></div>
+    <code class="barcode-label">▥ {{ product.barcode or 'Sin código asignado' }}</code>
+    <dl><div><dt>Stock</dt><dd class="{{ 'warning-text' if product.stock_low }}">{{ product.stock }}</dd></div><div><dt>Estado</dt><dd><span class="status {{ 'success' if product.active else 'neutral' }}">{{ 'ACTIVO' if product.active else 'INACTIVO' }}</span></dd></div></dl>
+    {% if current_user.can('products.manage') %}
+    <details><summary>Gestionar producto</summary>
+      <form method="post" enctype="multipart/form-data" action="{{ url_for('products.edit', product_id=product.id) }}" class="inline-form product-edit-form" data-async data-preserve-scroll>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Nombre<input name="name" value="{{ product.name }}" required></label>
+        <label>Categoría<input name="category" value="{{ product.category }}" required></label>
+        <label>Código de barras<input name="barcode" value="{{ product.barcode or '' }}" required></label>
+        <label>Precio<input name="price" type="number" value="{{ product.price|int }}" min="1" required></label>
+        <label>Stock mínimo<input name="low_stock_threshold" type="number" value="{{ product.low_stock_threshold }}" min="0"></label>
+        <label>Reemplazar foto<input name="image" type="file" accept="image/png,image/jpeg,image/webp" capture="environment"></label>
+        <label class="check"><input name="active" type="checkbox" {{ 'checked' if product.active }}> Activo</label>
+        <button class="btn secondary">Guardar cambios</button>
+      </form>
+      <form method="post" action="{{ url_for('products.adjust_stock', product_id=product.id) }}" class="stock-form" data-async data-preserve-scroll>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input name="quantity" type="number" placeholder="+/- cantidad" required><input name="reason" placeholder="Motivo del ajuste" required><button class="btn primary">Ajustar stock</button>
+      </form>
+    </details>
+    {% endif %}
+  </article>
+  {% else %}<div class="empty-state"><h2>No encontramos productos</h2><p>Cambiá los filtros o cargá el primer producto.</p></div>{% endfor %}
+</section>
+<dialog id="product-create" class="modal"><form method="post" enctype="multipart/form-data" action="{{ url_for('products.create') }}" data-async data-preserve-scroll>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="modal-close" type="button" data-dialog-close>×</button>
+  <p class="eyebrow">CATÁLOGO</p><h2>Nuevo producto</h2>
+  <label>Foto del producto<input name="image" type="file" accept="image/png,image/jpeg,image/webp" capture="environment" required><small>Podés tomarla con la cámara del celular.</small></label>
+  <label>Nombre<input name="name" required></label>
+  <div class="barcode-capture"><label>Código de barras<input id="new-product-barcode" name="barcode" autocomplete="off" required placeholder="Escaneá o escribí el código"></label><button class="btn secondary" type="button" data-open-scanner="new-product-barcode">Escanear</button></div>
+  <div class="form-grid"><label>Categoría<input name="category" value="Bebidas" required></label><label>Precio (G.)<input name="price" type="number" min="1" step="1" required></label><label>Stock inicial<input name="stock" type="number" min="0" value="0" required></label><label>Alerta de stock<input name="low_stock_threshold" type="number" min="0" value="5"></label></div>
+  <input name="color" type="hidden" value="#087ccf"><label class="check"><input name="active" type="checkbox" checked> Producto activo</label><button class="btn primary wide">Guardar producto</button>
+</form></dialog>
+{% include 'shared/barcode_scanner.html' %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/barcode-scanner.js') }}"></script>{% endblock %}

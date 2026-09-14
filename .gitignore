@@ -1,0 +1,15 @@
+.env
+.venv/
+.qa-venv/
+.idea/
+.git/
+.git-codex/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+instance/*.db
+instance/*.sqlite*
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+tmp/
+backups/*.db

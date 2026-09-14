@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">ADMINISTRACIÓN</p><h1>Configuración</h1><p>Parámetros operativos de {{ config.court_name }}</p></div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="settings-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <article class="panel">
+    <div class="panel-title"><h2>Información general</h2><span>Complejo y cancha</span></div>
+    <label>Nombre del complejo<input name="facility_name" value="{{ config.facility_name }}" required></label>
+    <label>Nombre de la cancha<input name="court_name" value="{{ config.court_name }}" required></label>
+    <label>Descripción<textarea name="description" rows="2">{{ config.description }}</textarea></label>
+    <div class="form-grid">
+      <label>Zona horaria<input name="timezone" value="{{ config.timezone }}" required></label>
+      <label>Moneda<input name="currency" value="{{ config.currency }}" required></label>
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="panel-title"><h2>Reservas y horarios</h2><span>Valores vigentes</span></div>
+    <label>Precio por reserva (G.)<input name="reservation_price" type="number" min="1" value="{{ config.reservation_price|int }}" required></label>
+    <div class="form-grid">
+      <label>Apertura<input name="open_time" type="time" value="{{ config.open_time.strftime('%H:%M') }}" required></label>
+      <label>Cierre<input name="close_time" type="time" value="{{ config.close_time.strftime('%H:%M') }}" required></label>
+    </div>
+    <label>Intervalo<select name="slot_minutes">{% for minutes in [30,45,60,90,120] %}<option value="{{ minutes }}" {{ 'selected' if config.slot_minutes == minutes }}>{{ minutes }} minutos</option>{% endfor %}</select></label>
+    <fieldset class="weekday-picker">
+      <legend>Días habilitados</legend>
+      {% set enabled = config.enabled_days.split(',') %}
+      {% for value, label in [('0','Lun'),('1','Mar'),('2','Mié'),('3','Jue'),('4','Vie'),('5','Sáb'),('6','Dom')] %}
+        <label><input type="checkbox" name="enabled_days" value="{{ value }}" {{ 'checked' if value in enabled }}><span>{{ label }}</span></label>
+      {% endfor %}
+    </fieldset>
+    <p class="form-hint">Los cambios se aplican a nuevos horarios; las reservas existentes conservan su precio histórico.</p>
+  </article>
+
+  <article class="panel">
+    <div class="panel-title"><h2>Apariencia y avisos</h2><span>Persistente por usuario</span></div>
+    <label>Tema del usuario actual<select name="theme"><option value="dark" {{ 'selected' if current_user.theme == 'dark' }}>Oscuro</option><option value="light" {{ 'selected' if current_user.theme == 'light' }}>Claro</option></select></label>
+    <label class="switch-row"><span><b>Nuevas reservas</b><small>Crear aviso cuando se registre una reserva</small></span><input type="checkbox" name="notify_reservations" {{ 'checked' if config.notify_reservations }}></label>
+    <label class="switch-row"><span><b>Cancelaciones</b><small>Avisar cambios de estado</small></span><input type="checkbox" name="notify_cancellations" {{ 'checked' if config.notify_cancellations }}></label>
+    <label class="switch-row"><span><b>Recordatorios</b><small>Habilitar recordatorios operativos</small></span><input type="checkbox" name="notify_reminders" {{ 'checked' if config.notify_reminders }}></label>
+  </article>
+
+  <article class="panel pix-settings">
+    <div class="panel-title"><h2>PIX</h2><span>Confirmación manual</span></div>
+    <label>Chave PIX<input name="pix_key" value="{{ config.pix_key }}"></label>
+    <label>Nombre del titular<input name="pix_holder" value="{{ config.pix_holder }}"></label>
+    <label>Tipo de clave<select name="pix_key_type">{% for type in ['CPF','CNPJ','EMAIL','TELEFONO','OTRA'] %}<option value="{{ type }}" {{ 'selected' if config.pix_key_type == type }}>{{ type }}</option>{% endfor %}</select></label>
+    <label>Imagen QR<input name="pix_qr" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    {% if config.pix_qr_path %}<img src="{{ url_for('static', filename=config.pix_qr_path) }}" alt="QR PIX configurado">{% else %}<div class="qr-placeholder">QR<br><small>Sin configurar</small></div>{% endif %}
+  </article>
+
+  <article class="panel ticket-settings">
+    <div class="panel-title"><h2>Ticket</h2><span>Comprobante 80 mm</span></div>
+    <label>Pie de ticket<textarea name="ticket_footer" rows="3">{{ config.ticket_footer }}</textarea></label>
+    <div class="ticket-preview"><b>PROFUT</b><span>{{ config.facility_name }}</span><hr><small>Comprobante · Fecha · Operador</small><strong>G. 100.000</strong><hr><small>{{ config.ticket_footer }}</small></div>
+  </article>
+  <button class="btn primary settings-save">Guardar todos los cambios</button>
+</form>
+{% endblock %}

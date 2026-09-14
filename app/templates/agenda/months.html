@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Agenda{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">AGENDA / PARTIDOS</p><h1>Elegí un mes</h1><p>Navegación paso 1 de 3 · {{ system_config.court_name }}</p></div><div class="year-switch"><a href="{{ url_for('agenda.months', year=year-1) }}">‹</a><strong>{{ year }}</strong><a href="{{ url_for('agenda.months', year=year+1) }}">›</a></div></div>
+<div class="progress-steps"><span class="active">1 Mes</span><span>2 Día</span><span>3 Horario</span></div>
+<section class="month-grid">{% for month in months %}{% set is_past = year < today.year or (year == today.year and loop.index < today.month) %}<a class="month-card {{ 'past' if is_past }}" href="{{ url_for('agenda.days', year=year, month=loop.index) }}"><span>{{ '%02d'|format(loop.index) }}</span><h2>{{ month }}</h2><p>{{ counts.get(loop.index, 0)|int }} reservas</p><i>→</i></a>{% endfor %}</section>
+{% endblock %}
+

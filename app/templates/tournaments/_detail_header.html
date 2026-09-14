@@ -1,0 +1,12 @@
+<div class="page-heading compact-heading">
+  <div><a class="back-link" href="{{ url_for('tournaments.index') }}">← Todos los torneos</a><p class="eyebrow">{{ tournament.category }}</p><h1>{{ tournament.name }}</h1><p>{{ format_labels.get(tournament.format, tournament.format) }} · {{ tournament.start_date|shortdate }} · {{ tournament.entries|length }} equipos</p></div>
+  <div class="heading-status">{% if tournament.champion %}<span class="champion-chip">🏆 {{ tournament.champion.name }}</span>{% endif %}<span class="status {{ 'success' if tournament.status in ['EN_CURSO','FINALIZADO'] else ('warning' if tournament.status == 'PROGRAMADO' else 'neutral') }}">{{ tournament.status|replace('_',' ') }}</span></div>
+</div>
+{% if not hide_process_nav|default(false) %}<nav class="tournament-process-nav" aria-label="Procesos del torneo">
+  <a class="{{ 'active' if section == 'summary' }}" href="{{ url_for('tournaments.summary', tournament_id=tournament.id) }}"><span>01</span><b>Resumen</b><small>Estado y reglas</small></a>
+  <a class="{{ 'active' if section == 'registrations' }}" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}"><span>02</span><b>Inscripciones</b><small>Equipos y cobros</small></a>
+  {% if not tournament.draw_completed and current_user.can('tournaments.manage') %}<a class="{{ 'active' if section == 'draw' }}" href="{{ url_for('tournaments.draw_form', tournament_id=tournament.id) }}"><span>03</span><b>Sorteo</b><small>Generar estructura</small></a>{% endif %}
+  <a class="{{ 'active' if section == 'groups' }}" href="{{ url_for('tournaments.groups', tournament_id=tournament.id) }}"><span>{{ '03' if tournament.draw_completed else '04' }}</span><b>Grupos y tabla</b><small>Posiciones completas</small></a>
+  <a class="{{ 'active' if section == 'matches' }}" href="{{ url_for('tournaments.matches', tournament_id=tournament.id) }}"><span>{{ '04' if tournament.draw_completed else '05' }}</span><b>Partidos</b><small>Agenda y resultados</small></a>
+  <a class="{{ 'active' if section == 'bracket' }}" href="{{ url_for('tournaments.bracket', tournament_id=tournament.id) }}"><span>{{ '05' if tournament.draw_completed else '06' }}</span><b>Llaves</b><small>Eliminación</small></a>
+</nav>{% endif %}

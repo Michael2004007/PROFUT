@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}{{ month_name }} {{ year }} · Agenda{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">AGENDA / PARTIDOS</p><h1>{{ month_name }} {{ year }}</h1><p>Elegí el día que querés gestionar</p></div><a class="btn ghost" href="{{ url_for('agenda.months', year=year) }}">← Volver a meses</a></div>
+<div class="progress-steps"><span>1 Mes</span><span class="active">2 Día</span><span>3 Horario</span></div>
+<div class="legend"><span class="available">Disponible</span><span class="partial">Parcial</span><span class="full">Completo</span><span class="past">Pasado</span></div>
+<section class="day-grid">{% for item in days %}{% if item.status == 'past' %}<div class="day-card past" aria-disabled="true"><small>{{ item.weekday }}</small><strong>{{ item.date.day }}</strong><span>Fecha vencida</span></div>{% else %}<a class="day-card {{ item.status }}" href="{{ url_for('agenda.slots', date_value=item.date.isoformat()) }}"><small>{{ item.weekday }}</small><strong>{{ item.date.day }}</strong><span>{{ item.reserved }}/{{ item.total }} ocupados</span></a>{% endif %}{% endfor %}</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ tournament.name }} · Partidos{% endblock %}
+{% block content %}
+{% include 'tournaments/_detail_header.html' %}
+<div class="section-heading"><div><p class="eyebrow">CALENDARIO Y RESULTADOS</p><h2>Partidos</h2><p>Cada acción abre una pantalla amplia y exclusiva para evitar errores.</p></div><span class="count-badge">{{ tournament.matches|length }} partidos</span></div>
+<section class="match-list-full">
+{% for match in tournament.matches|sort(attribute='round_number') %}<article class="panel match-row-full">
+  <div class="match-meta"><span>{{ match.group.name if match.group else match.round_name }}</span><small>{{ match.date|shortdate if match.date else 'Sin horario' }}{% if match.start_time %} · {{ match.start_time.strftime('%H:%M') }}{% endif %}</small></div>
+  <div class="match-teams"><div><b>{{ match.home_team.name if match.home_team else 'Por definir' }}</b></div><strong>{% if match.status == 'FINALIZADO' %}<span>{{ match.home_score }}</span><i>–</i><span>{{ match.away_score }}</span>{% else %}<i>VS</i>{% endif %}</strong><div><b>{{ match.away_team.name if match.away_team else 'Por definir' }}</b></div></div>
+  <span class="status {{ 'success' if match.status == 'FINALIZADO' else ('warning' if match.status == 'PROGRAMADO' else 'neutral') }}">{{ match.status }}</span>
+  <div class="match-actions">{% if current_user.can('tournaments.manage') and match.home_team and match.away_team %}{% if not match.reservation_id %}<a class="btn small ghost" href="{{ url_for('tournaments.schedule_form', match_id=match.id) }}">Programar</a>{% endif %}<a class="btn small primary" href="{{ url_for('tournaments.result_form', match_id=match.id) }}">{{ 'Editar resultado' if match.status == 'FINALIZADO' else 'Cargar resultado' }}</a>{% else %}<small>Esperando clasificación</small>{% endif %}</div>
+</article>{% else %}<div class="empty-state panel"><div class="empty-icon">⚽</div><h2>Todavía no hay partidos</h2><p>Los cruces aparecerán automáticamente después del sorteo.</p>{% if current_user.can('tournaments.manage') %}<a class="btn primary" href="{{ url_for('tournaments.draw_form', tournament_id=tournament.id) }}">Ir al sorteo</a>{% endif %}</div>{% endfor %}
+</section>
+{% endblock %}

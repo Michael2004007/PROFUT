@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Torneos{% endblock %}
+{% block content %}
+<div class="page-heading tournament-landing-heading">
+  <div><p class="eyebrow">COMPETICIONES</p><h1>Torneos</h1><p>Inscripciones, sorteo, grupos, resultados y llaves en procesos claros.</p></div>
+  {% if current_user.can('tournaments.manage') %}<a class="btn primary" href="{{ url_for('tournaments.new') }}">＋ Crear torneo</a>{% endif %}
+</div>
+
+<section class="metric-grid compact">
+  <div class="metric blue"><span>TORNEOS</span><strong>{{ tournaments|length }}</strong><small>Total registrado</small></div>
+  <div class="metric green"><span>EN CURSO</span><strong>{{ tournaments|selectattr('status','equalto','EN_CURSO')|list|length }}</strong><small>Competiciones activas</small></div>
+  <div class="metric purple"><span>EQUIPOS</span><strong>{{ available_teams }}</strong><small>Disponibles para inscribir</small></div>
+  <div class="metric orange"><span>SORTEADOS</span><strong>{{ tournaments|selectattr('draw_completed')|list|length }}</strong><small>Estructuras generadas</small></div>
+</section>
+
+<section class="tournament-list-grid">
+  {% for tournament in tournaments %}
+  <a class="panel tournament-list-card" href="{{ url_for('tournaments.summary', tournament_id=tournament.id) }}">
+    <div class="tournament-card-icon">♛</div>
+    <div class="tournament-card-copy">
+      <p class="eyebrow">{{ tournament.category }}</p>
+      <h2>{{ tournament.name }}</h2>
+      <p>{{ format_labels.get(tournament.format, tournament.format) }} · {{ tournament.start_date|shortdate }} · {{ tournament.entries|length }} equipos</p>
+    </div>
+    <span class="status {{ 'success' if tournament.status in ['EN_CURSO','FINALIZADO'] else ('warning' if tournament.status == 'PROGRAMADO' else 'neutral') }}">{{ tournament.status|replace('_',' ') }}</span>
+    <span class="card-arrow">→</span>
+  </a>
+  {% else %}
+  <div class="empty-state panel"><div class="empty-icon">♛</div><h2>Creá tu primer torneo</h2><p>Definí el formato, el valor de inscripción y las reglas; PROFUT generará la competencia.</p>{% if current_user.can('tournaments.manage') %}<a class="btn primary" href="{{ url_for('tournaments.new') }}">Crear torneo</a>{% endif %}</div>
+  {% endfor %}
+</section>
+{% endblock %}

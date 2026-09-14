@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Inscribir equipo · {{ tournament.name }}{% endblock %}
+{% block content %}
+{% set hide_process_nav = true %}{% include 'tournaments/_detail_header.html' %}
+<div class="page-heading subpage-heading"><div><a class="back-link" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}">← Volver a inscripciones</a><p class="eyebrow">NUEVA INSCRIPCIÓN</p><h2>Inscribir un equipo</h2><p>Podés elegir uno registrado o crearlo sin salir del torneo.</p></div><div class="price-badge"><small>Valor por equipo</small><b>{{ tournament.registration_fee|pyg }}</b></div></div>
+<form class="panel focus-form" method="post" action="{{ url_for('tournaments.enroll_team', tournament_id=tournament.id) }}" data-async>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+  <div class="mode-tabs enrollment-mode"><label><input type="radio" name="team_mode" value="existing" checked><span>Elegir equipo existente</span></label><label><input type="radio" name="team_mode" value="new"><span>Crear equipo ahora</span></label></div>
+  <div data-existing-team><label>Equipo<select name="team_id">{% for team in teams if team not in tournament.teams %}<option value="{{ team.id }}">{{ team.name }} · {{ team.division }}</option>{% else %}<option value="">No quedan equipos disponibles</option>{% endfor %}</select></label></div>
+  <div data-new-team hidden><label>Nombre del equipo<input name="new_team_name" placeholder="Ej.: Los Halcones"></label><div class="form-grid"><label>División<input name="new_team_division" value="Libre"></label><label>Contacto responsable<input name="new_team_contact"></label></div><label>Celular<input name="new_team_phone" inputmode="tel" placeholder="+595 ..."></label></div>
+  <div class="payment-choice"><label class="check"><input type="checkbox" name="collect_payment" data-collect-payment><span><b>Cobrar ahora</b><small>Registrar la inscripción como pagada en caja.</small></span></label><div data-enrollment-payment hidden><label>Método de pago<select name="method"><option>EFECTIVO</option><option>TARJETA</option><option>TRANSFERENCIA</option><option>PIX</option></select></label><label>Referencia<input name="reference" placeholder="Opcional"></label><p class="form-hint">Para cobrar debe existir una caja abierta. Si no, podés inscribir con saldo pendiente.</p></div></div>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}">Cancelar</a><button class="btn primary">Confirmar inscripción</button></div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/tournaments.js') }}"></script>{% endblock %}

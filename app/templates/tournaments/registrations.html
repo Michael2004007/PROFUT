@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}{{ tournament.name }} · Inscripciones{% endblock %}
+{% block content %}
+{% include 'tournaments/_detail_header.html' %}
+<div class="section-heading"><div><p class="eyebrow">EQUIPOS Y COBROS</p><h2>Inscripciones</h2><p>Cada equipo muestra claramente su deuda o confirmación de pago.</p></div>{% if current_user.can('tournaments.manage') and not tournament.draw_completed %}<a class="btn primary" href="{{ url_for('tournaments.enroll_form', tournament_id=tournament.id) }}">＋ Inscribir equipo</a>{% endif %}</div>
+<article class="panel full-table-panel">
+  <div class="responsive-table tournament-entry-table">
+    <table><thead><tr><th>Equipo</th><th>División</th><th>Grupo / posición</th><th>Inscripción</th><th>Pagado</th><th>Saldo</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+    {% for entry in tournament.entries|sort(attribute='seed') %}<tr><td data-label="Equipo"><b>{{ entry.team.name }}</b></td><td data-label="División">{{ entry.team.division }}</td><td data-label="Grupo">{{ entry.group.name if entry.group else 'Sin sortear' }}{% if entry.seed %} · #{{ entry.seed }}{% endif %}</td><td data-label="Inscripción">{{ entry.fee_amount|pyg }}</td><td data-label="Pagado" class="positive">{{ entry.paid_amount|pyg }}</td><td data-label="Saldo">{{ entry.balance|pyg }}</td><td data-label="Estado"><span class="status {{ 'success' if entry.payment_status == 'PAGADA' else 'warning' }}">{{ entry.payment_status }}</span></td><td data-label="Acción">{% if entry.balance > 0 and current_user.can('pos.charge') %}<a class="btn small secondary" href="{{ url_for('tournaments.pay_entry_form', entry_id=entry.id) }}">Cobrar</a>{% else %}<span class="paid-check">✓ Confirmado</span>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="8"><div class="empty-state"><h3>Todavía no hay equipos</h3><p>Inscribí un equipo existente o crealo directamente desde este torneo.</p></div></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</article>
+{% if current_user.can('tournaments.manage') and not tournament.draw_completed %}<article class="panel draw-callout"><div><p class="eyebrow">SIGUIENTE PROCESO</p><h2>¿Ya están todos los equipos?</h2><p>Revisá las inscripciones y abrí la pantalla de sorteo. La estructura se generará automáticamente.</p></div><a class="btn success" href="{{ url_for('tournaments.draw_form', tournament_id=tournament.id) }}" {% if tournament.entries|length < 2 %}aria-disabled="true"{% endif %}>Ir al sorteo →</a></article>{% endif %}
+{% endblock %}

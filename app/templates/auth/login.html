@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión · PROFUT</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profut.css') }}">
+</head>
+<body class="auth-body">
+  <section class="auth-hero">
+    <div class="auth-pitch">
+      <span class="brand-mark jumbo">P</span>
+      <p>GESTIÓN DEPORTIVA</p>
+      <h1>Tu cancha.<br><em>Todo bajo control.</em></h1>
+      <div class="stadium-lines" aria-hidden="true"></div>
+    </div>
+    <div class="auth-panel">
+      <div class="auth-card">
+        <a class="brand centered" href="#"><span class="brand-mark">P</span><span><b>PROFUT</b><small>Gestión Deportiva</small></span></a>
+        <h2>Bienvenido</h2>
+        <p class="muted">Ingresá tus datos para continuar</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+        <form method="post" class="stack-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Correo electrónico<input type="email" name="email" value="{{ email or '' }}" placeholder="admin@profut.local" autocomplete="email" required autofocus></label>
+          <label>Contraseña<span class="password-field"><input id="password" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required><button type="button" data-password-toggle="password" aria-label="Mostrar contraseña">◉</button></span></label>
+          <div class="form-split"><label class="check"><input type="checkbox" name="remember"> Recordarme</label><a href="{{ url_for('auth.forgot_password') }}">Olvidé mi contraseña</a></div>
+          <button class="btn primary wide" type="submit">Iniciar sesión <span>→</span></button>
+        </form>
+        <div class="demo-access"><b>Acceso inicial</b><code>admin@profut.local</code><code>Profut2026!</code></div>
+      </div>
+    </div>
+  </section>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

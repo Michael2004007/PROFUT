@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Cobrar inscripción · {{ entry.team.name }}{% endblock %}
+{% block content %}
+{% set hide_process_nav = true %}{% include 'tournaments/_detail_header.html' %}
+<div class="page-heading subpage-heading"><div><a class="back-link" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}">← Volver a inscripciones</a><p class="eyebrow">COBRO DE INSCRIPCIÓN</p><h2>{{ entry.team.name }}</h2><p>El pago quedará vinculado al equipo, el torneo y la caja actual.</p></div><div class="price-badge"><small>Saldo a cobrar</small><b>{{ entry.balance|pyg }}</b></div></div>
+<form class="panel focus-form payment-form" method="post" action="{{ url_for('tournaments.pay_entry', entry_id=entry.id) }}" data-confirm="¿Confirmás el cobro completo de la inscripción de {{ entry.team.name }}?" data-confirm-title="Confirmar cobro">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+  <fieldset><legend>Método de pago</legend><div class="payment-method-grid">{% for method, icon in [('EFECTIVO','▣'),('TARJETA','▰'),('TRANSFERENCIA','↔'),('PIX','⌗')] %}<label><input type="radio" name="method" value="{{ method }}" {{ 'checked' if loop.first }}><span><i>{{ icon }}</i><b>{{ method|title }}</b></span></label>{% endfor %}</div></fieldset>
+  <label>Referencia o comprobante<input name="reference" placeholder="Opcional para efectivo"></label>
+  <div class="form-actions"><a class="btn ghost" href="{{ url_for('tournaments.registrations', tournament_id=tournament.id) }}">Cancelar</a><button class="btn success">Cobrar {{ entry.balance|pyg }}</button></div>
+</form>
+{% endblock %}

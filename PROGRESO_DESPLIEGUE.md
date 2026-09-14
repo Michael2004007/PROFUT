@@ -1,6 +1,21 @@
 # Estado de revisión y despliegue
 
-Actualizado: 12 de septiembre de 2026
+Actualizado: 14 de septiembre de 2026
+
+## Estado actual para retomar primero
+
+- Git funciona con su carpeta estándar `.git`, rama `main`; el remoto todavía no se creó ni se configuró.
+- Se resolvió el problema de acceso a Python 3.13 al cambiar los permisos del entorno. La suite completa volvió a ejecutar las dependencias reales, sin reemplazos: **25 pruebas aprobadas con SQLite en 10,13 s** y **25 aprobadas con PostgreSQL 17 en 24,49 s**. Ninguna prueba excluida; la carga real de fotos está incluida.
+- `python -m pip check`: ninguna dependencia rota.
+- Se creó un servidor PostgreSQL temporal exclusivo para QA en `127.0.0.1:55437`, con dos bases independientes: `profut_qa_migrations` y `profut_qa_tests`. No se utilizó ninguna base del negocio para estas pruebas.
+- En la base vacía de QA se ejecutó `flask --app wsgi.py db upgrade`: llegaron todas las migraciones a `081d8ee0ab6f`. `flask --app wsgi.py db check` confirmó que el esquema coincide con los modelos.
+- `bootstrap-production` se ejecutó dos veces: creó el administrador inicial la primera vez y no duplicó ni modificó su contraseña en la segunda. `/health` devolvió HTTP 200 con la configuración de producción y PostgreSQL real.
+- Al terminar se detuvo el servidor temporal de QA; sus archivos quedaron en `tmp/postgres-qa-f105308abcaf4df79cc0582db934c0f3`, ignorados por Git.
+- Estas verificaciones cubren los casos de la suite; no sustituyen una prueba de carga con operadores simultáneos ni la comprobación del entorno remoto.
+- GitHub y Railway siguen sin publicar: el último intento de abrir `https://github.com/new` y `https://railway.app/dashboard` fue rechazado por una preferencia guardada de permisos del navegador. La autorización del usuario para crear el repositorio privado y desplegar ya está dada; falta que la herramienta pueda acceder a los sitios.
+- Siguiente paso: resolver el bloqueo del navegador con la configuración real visible para el usuario, crear el repositorio privado, subir `main`, crear el servicio web y PostgreSQL de Railway, configurar secretos y volumen, desplegar y verificar el acceso por HTTPS.
+
+Las secciones siguientes conservan el historial anterior. El problema de Python y la prueba de foto pendiente que mencionan **ya están resueltos**.
 
 ## Etapa actual: validación de producción local
 

@@ -4,6 +4,7 @@
 .idea/
 .git/
 .git-codex/
+.git-empty-backup/
 __pycache__/
 *.py[cod]
 .pytest_cache/

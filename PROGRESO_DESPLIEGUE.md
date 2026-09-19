@@ -1,6 +1,6 @@
 # Estado de revisión y despliegue
 
-Actualizado: 14 de septiembre de 2026
+Actualizado: 18 de septiembre de 2026
 
 ## Estado actual para retomar primero
 
@@ -12,9 +12,9 @@ Actualizado: 14 de septiembre de 2026
 - `bootstrap-production` se ejecutó dos veces: creó el administrador inicial la primera vez y no duplicó ni modificó su contraseña en la segunda. `/health` devolvió HTTP 200 con la configuración de producción y PostgreSQL real.
 - Al terminar se detuvo el servidor temporal de QA; sus archivos quedaron en `tmp/postgres-qa-f105308abcaf4df79cc0582db934c0f3`, ignorados por Git.
 - Estas verificaciones cubren los casos de la suite; no sustituyen una prueba de carga con operadores simultáneos ni la comprobación del entorno remoto.
-- **Railway ya es accesible en `https://railway.com/dashboard`**. La captura del usuario muestra una excepción para `https://railway.com`, distinta del dominio `railway.app` utilizado antes. La comprobación del navegador abrió Railway y mostró el diálogo de inicio de sesión (opciones GitHub y correo). La pestaña quedó abierta para que el usuario inicie sesión; todavía no se creó ningún proyecto, servicio ni base remota.
-- GitHub continúa bloqueado: el último intento normal de abrir `https://github.com/new` devolvió una denegación por preferencia guardada, aunque la captura del usuario muestra `https://github.com` en «Always allow». La causa de esa discrepancia no está confirmada. No intentar eludirla por otra herramienta ni asumir que falta autorización del usuario.
-- La autorización para crear el repositorio privado y desplegar ya está dada. Siguiente paso: completar el inicio de sesión del usuario en Railway y resolver la discrepancia de permisos de GitHub; después crear el repositorio privado, subir `main`, crear el servicio web y PostgreSQL de Railway, configurar secretos y volumen, desplegar y verificar el acceso por HTTPS.
+- **Railway ya tiene infraestructura real para PROFUT**: proyecto privado `PROFUT_SYSTEM`, PostgreSQL en línea con volumen administrado y servicio web `profut-web`, todos independientes de los demás proyectos de la cuenta. El servicio recibió `DATABASE_URL` enlazada internamente a PostgreSQL, `AUTO_SEED=false` y `AUTO_CREATE_DB=false`. No hay una publicación activa todavía porque falta el código y los secretos de producción.
+- GitHub continúa bloqueado para la herramienta: el 18 de septiembre de 2026 se volvió a intentar abrir `https://github.com/new` después de que el usuario configuró GitHub en «Permitir siempre», pero el navegador devolvió una denegación por preferencia guardada. La causa de esa discrepancia no está confirmada. No intentar eludirla por otra herramienta ni asumir que falta autorización del usuario.
+- La autorización para crear el repositorio privado y desplegar ya está dada. Siguiente paso: resolver el bloqueo efectivo de GitHub, crear el repositorio privado, subir `main`, conectarlo a `profut-web`, establecer `SECRET_KEY` y las credenciales iniciales de administrador, agregar el volumen de fotos, desplegar y verificar el acceso HTTPS.
 
 Las secciones siguientes conservan el historial anterior. El problema de Python y la prueba de foto pendiente que mencionan **ya están resueltos**.
 

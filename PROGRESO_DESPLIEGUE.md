@@ -1,6 +1,6 @@
 # Estado de revisión y despliegue
 
-Actualizado: 18 de septiembre de 2026
+Actualizado: 19 de septiembre de 2026
 
 ## Estado actual para retomar primero
 
@@ -14,7 +14,9 @@ Actualizado: 18 de septiembre de 2026
 - Estas verificaciones cubren los casos de la suite; no sustituyen una prueba de carga con operadores simultáneos ni la comprobación del entorno remoto.
 - **Railway ya tiene infraestructura real para PROFUT**: proyecto privado `PROFUT_SYSTEM`, PostgreSQL en línea con volumen administrado y servicio web `profut-web`, todos independientes de los demás proyectos de la cuenta. El servicio recibió `DATABASE_URL` enlazada internamente a PostgreSQL, `AUTO_SEED=false` y `AUTO_CREATE_DB=false`.
 - El 18 de septiembre se completó la configuración del servicio: comando de migración y administrador inicial antes de publicar, Gunicorn, comprobación `/health` con 120 segundos, volumen `profut-web-volume` montado en `/app/app/static/uploads` y dominio HTTPS reservado `https://profut-web-production.up.railway.app`.
-- La publicación sigue pendiente de dos datos reales de producción: `SECRET_KEY` y las credenciales del administrador inicial. Además, al elegir una fuente Railway no encuentra `Michael2004007/PROFUT`: la integración de GitHub solo tiene acceso a repositorios anteriores. El navegador también rechazó acceder directamente a GitHub por una preferencia guardada; no se debe intentar eludirla. El usuario debe conceder a la aplicación de Railway acceso específico al repositorio `PROFUT`, luego el servicio podrá conectarse y desplegar desde `main`.
+- El 19 de septiembre la integración de Railway recibió acceso a GitHub y el servicio quedó conectado correctamente a `Michael2004007/PROFUT`, rama `main`; los futuros cambios enviados a esa rama activarán despliegues automáticos.
+- **Publicado en producción el 19 de septiembre de 2026.** Railway aplicó las migraciones, creó de forma idempotente la cuenta administrativa inicial, inició Gunicorn y mostró el estado `Deployment successful`. El enlace público es `https://profut-web-production.up.railway.app`.
+- Se verificó desde fuera de Railway: `https://profut-web-production.up.railway.app/health` respondió HTTP 200 con `{"status":"ok"}` y la página principal respondió HTTP 200. Las credenciales y la clave interna se almacenaron únicamente como variables secretas de Railway, nunca en el repositorio.
 
 Las secciones siguientes conservan el historial anterior. El problema de Python y la prueba de foto pendiente que mencionan **ya están resueltos**.
 

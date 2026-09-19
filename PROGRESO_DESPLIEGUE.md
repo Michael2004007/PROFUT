@@ -4,7 +4,7 @@ Actualizado: 18 de septiembre de 2026
 
 ## Estado actual para retomar primero
 
-- Git funciona con su carpeta estándar `.git`, rama `main`; el remoto todavía no se creó ni se configuró.
+- Git funciona con su carpeta estándar `.git`, rama `main`; el remoto `origin` apunta a `https://github.com/Michael2004007/PROFUT.git` y `main` ya fue publicado en GitHub.
 - Se resolvió el problema de acceso a Python 3.13 al cambiar los permisos del entorno. La suite completa volvió a ejecutar las dependencias reales, sin reemplazos: **25 pruebas aprobadas con SQLite en 10,13 s** y **25 aprobadas con PostgreSQL 17 en 24,49 s**. Ninguna prueba excluida; la carga real de fotos está incluida.
 - `python -m pip check`: ninguna dependencia rota.
 - Se creó un servidor PostgreSQL temporal exclusivo para QA en `127.0.0.1:55437`, con dos bases independientes: `profut_qa_migrations` y `profut_qa_tests`. No se utilizó ninguna base del negocio para estas pruebas.
@@ -12,9 +12,9 @@ Actualizado: 18 de septiembre de 2026
 - `bootstrap-production` se ejecutó dos veces: creó el administrador inicial la primera vez y no duplicó ni modificó su contraseña en la segunda. `/health` devolvió HTTP 200 con la configuración de producción y PostgreSQL real.
 - Al terminar se detuvo el servidor temporal de QA; sus archivos quedaron en `tmp/postgres-qa-f105308abcaf4df79cc0582db934c0f3`, ignorados por Git.
 - Estas verificaciones cubren los casos de la suite; no sustituyen una prueba de carga con operadores simultáneos ni la comprobación del entorno remoto.
-- **Railway ya tiene infraestructura real para PROFUT**: proyecto privado `PROFUT_SYSTEM`, PostgreSQL en línea con volumen administrado y servicio web `profut-web`, todos independientes de los demás proyectos de la cuenta. El servicio recibió `DATABASE_URL` enlazada internamente a PostgreSQL, `AUTO_SEED=false` y `AUTO_CREATE_DB=false`. No hay una publicación activa todavía porque falta el código y los secretos de producción.
-- GitHub continúa bloqueado para la herramienta: el 18 de septiembre de 2026 se volvió a intentar abrir `https://github.com/new` después de que el usuario configuró GitHub en «Permitir siempre», pero el navegador devolvió una denegación por preferencia guardada. La causa de esa discrepancia no está confirmada. No intentar eludirla por otra herramienta ni asumir que falta autorización del usuario.
-- La autorización para crear el repositorio privado y desplegar ya está dada. Siguiente paso: resolver el bloqueo efectivo de GitHub, crear el repositorio privado, subir `main`, conectarlo a `profut-web`, establecer `SECRET_KEY` y las credenciales iniciales de administrador, agregar el volumen de fotos, desplegar y verificar el acceso HTTPS.
+- **Railway ya tiene infraestructura real para PROFUT**: proyecto privado `PROFUT_SYSTEM`, PostgreSQL en línea con volumen administrado y servicio web `profut-web`, todos independientes de los demás proyectos de la cuenta. El servicio recibió `DATABASE_URL` enlazada internamente a PostgreSQL, `AUTO_SEED=false` y `AUTO_CREATE_DB=false`.
+- El 18 de septiembre se completó la configuración del servicio: comando de migración y administrador inicial antes de publicar, Gunicorn, comprobación `/health` con 120 segundos, volumen `profut-web-volume` montado en `/app/app/static/uploads` y dominio HTTPS reservado `https://profut-web-production.up.railway.app`.
+- La publicación sigue pendiente de dos datos reales de producción: `SECRET_KEY` y las credenciales del administrador inicial. Además, al elegir una fuente Railway no encuentra `Michael2004007/PROFUT`: la integración de GitHub solo tiene acceso a repositorios anteriores. El navegador también rechazó acceder directamente a GitHub por una preferencia guardada; no se debe intentar eludirla. El usuario debe conceder a la aplicación de Railway acceso específico al repositorio `PROFUT`, luego el servicio podrá conectarse y desplegar desde `main`.
 
 Las secciones siguientes conservan el historial anterior. El problema de Python y la prueba de foto pendiente que mencionan **ya están resueltos**.
 
